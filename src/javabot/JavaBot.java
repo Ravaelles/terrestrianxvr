@@ -234,23 +234,6 @@ public class JavaBot implements BWAPIEventListener {
 	// Draws debug information on the screen.
 	// Reimplement this function however you want.
 	public void drawDebugInfo() {
-
-		// Draw our home position.
-		bwapi.drawText(new Point(5, 0),
-				"Our home position: " + String.valueOf(homePositionX) + ","
-						+ String.valueOf(homePositionY), true);
-
-		// Draw circles over workers (blue if they're gathering minerals, green
-		// if gas, yellow if they're constructing).
-		for (Unit u : bwapi.getMyUnits()) {
-			if (u.isGatheringMinerals()) {
-				bwapi.drawCircle(u.getX(), u.getY(), 12, BWColor.BLUE, false,
-						false);
-			} else if (u.isGatheringGas()) {
-				bwapi.drawCircle(u.getX(), u.getY(), 12, BWColor.GREEN, false,
-						false);
-			}
-		}
-
+		Log.drawDebug(xvr);
 	}
 }

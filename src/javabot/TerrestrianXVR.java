@@ -26,62 +26,6 @@ public class TerrestrianXVR {
 
 	// =====================================================
 
-	// Returns the Point object representing the suitable build tile position
-		// for a given building type near specified pixel position (or Point(-1,-1) if not found)
-		// (builderID should be our worker)
-		public Point getBuildTile(int builderID, int buildingTypeID, int x, int y) {
-			Point ret = new Point(-1, -1);
-			int maxDist = 3;
-			int stopDist = 40;
-			int tileX = x/32; int tileY = y/32;
-			
-			// Refinery, Assimilator, Extractor
-			if (bwapi.getUnitType(buildingTypeID).isRefinery()) {
-				for (Unit n : bwapi.getNeutralUnits()) {
-					if ((n.getTypeID() == UnitTypes.Resource_Vespene_Geyser.ordinal()) && 
-							( Math.abs(n.getTileX()-tileX) < stopDist ) &&
-							( Math.abs(n.getTileY()-tileY) < stopDist )
-							) return new Point(n.getTileX(),n.getTileY());
-				}
-			}
-			
-			while ((maxDist < stopDist) && (ret.x == -1)) {
-				for (int i=tileX-maxDist; i<=tileX+maxDist; i++) {
-					for (int j=tileY-maxDist; j<=tileY+maxDist; j++) {
-						if (bwapi.canBuildHere(builderID, i, j, buildingTypeID, false)) {
-							// units that are blocking the tile
-							boolean unitsInWay = false;
-							for (Unit u : bwapi.getAllUnits()) {
-								if (u.getID() == builderID) continue;
-								if ((Math.abs(u.getTileX()-i) < 4) && (Math.abs(u.getTileY()-j) < 4)) unitsInWay = true;
-							}
-							if (!unitsInWay) {
-								ret.x = i; ret.y = j;
-								return ret;
-							}
-							// creep for Zerg (this may not be needed - not tested yet)
-							if (bwapi.getUnitType(buildingTypeID).isRequiresCreep()) {
-								boolean creepMissing = false;
-								for (int k=i; k<=i+bwapi.getUnitType(buildingTypeID).getTileWidth(); k++) {
-									for (int l=j; l<=j+bwapi.getUnitType(buildingTypeID).getTileHeight(); l++) {
-										if (!bwapi.hasCreep(k, l)) creepMissing = true;
-										break;
-									}
-								}
-								if (creepMissing) continue; 
-							}
-							// psi power for Protoss (this seems to work out of the box)
-							if (bwapi.getUnitType(buildingTypeID).isRequiresPsi()) {}
-						}
-					}
-				}
-				maxDist += 2;
-			}
-			
-			if (ret.x == -1) bwapi.printText("Unable to find suitable build position for "+bwapi.getUnitType(buildingTypeID).getName());
-			return ret;
-		}
-	
 	public void act() {
 		// This method is called every 30th frame (approx. once a
 		// second). You can use other methods in this class, but the
@@ -93,27 +37,8 @@ public class TerrestrianXVR {
 		// Now let's mine minerals with your idle workers.
 		handleSCVsBehaviour();
 		
-
-		// And let's build some Supply Depots if we are low on supply (if free supply is less than 3).
-//				if (((bwapi.getSelf().getSupplyTotal() - bwapi.getSelf().getSupplyUsed())/2) < 3) {
-//					// Check if we have enough minerals,
-//					if (bwapi.getSelf().getMinerals() >= 100) {
-//						// try to find the worker near our home position
-//						int worker = bot.getNearestUnit(UnitTypes.Terran_SCV.ordinal(), bot.homePositionX, bot.homePositionY);
-//						if (worker != -1) {
-//							// if we found him, try to select appropriate build tile position for supply depot (near our home base)
-//							Point buildTile = getBuildTile(worker, UnitTypes.Terran_Supply_Depot.ordinal(), bot.homePositionX, bot.homePositionY);
-//							// if we found a good build position, and we aren't already constructing a Supply Depot, 
-//							// order our worker to build it
-//							if ((buildTile.x != -1) && (!weAreBuilding(UnitTypes.Terran_Supply_Depot))) {
-//								bwapi.build(worker, buildTile.x, buildTile.y, UnitTypes.Terran_Supply_Depot.ordinal());
-//							}
-//						}
-//					}
-//				}
-
-//		// And let's build some Supply Depots if we are low on supply (if free
-//		// supply is less than 3).
+		// And let's build some Supply Depots if we are low on supply (if free
+		// supply is less than 3).
 		handleConstruction();
 		
 		// Build some army units if possible
